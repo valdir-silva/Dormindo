@@ -111,5 +111,5 @@ Desktop.ini
 *.swp
 *.swo
 
-# CursorRIPER Framework backup files
-.cursor/backup/
+# CursorRIPER Framework files
+.cursor/
