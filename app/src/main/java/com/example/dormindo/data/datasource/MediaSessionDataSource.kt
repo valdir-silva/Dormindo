@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import android.view.KeyEvent
+import android.content.ComponentName
+import com.example.dormindo.DormindoNotificationListenerService
 
 /**
  * DataSource para controle de mídia usando MediaSession
@@ -173,7 +175,8 @@ class MediaSessionDataSource(
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getActiveMediaSessions(): List<MediaController> {
         return try {
-            val activeSessions = mediaSessionManager?.getActiveSessions(null) ?: emptyList()
+            val componentName = ComponentName(context, DormindoNotificationListenerService::class.java)
+            val activeSessions = mediaSessionManager?.getActiveSessions(componentName) ?: emptyList()
             activeSessions.filter { controller ->
                 controller.playbackState?.state == PlaybackState.STATE_PLAYING ||
                 controller.playbackState?.state == PlaybackState.STATE_PAUSED
