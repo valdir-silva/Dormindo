@@ -1,89 +1,85 @@
 package com.example.dormindo.presentation.screens
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.dormindo.domain.entity.TimerStatus
+import com.example.dormindo.DormindoTimerForegroundService
 import com.example.dormindo.presentation.viewmodel.TimerUiState
-import kotlinx.coroutines.delay
-import java.time.Duration
-import com.example.dormindo.data.datasource.NotificationDataSource
-import org.koin.androidx.compose.get
-import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
-import android.content.BroadcastReceiver
-import android.content.IntentFilter
-import androidx.compose.runtime.DisposableEffect
-import android.content.Context
 
 @Composable
 fun ForceStopScreen(
-    timerValue: String,
-    uiState: TimerUiState,
-    onStartTimer: (Long) -> Unit,
-    onStopTimer: () -> Unit,
-    onRefreshMedia: () -> Unit,
+    timerValue: String, // Mantido para compatibilidade, mas não usado diretamente
+    uiState: TimerUiState, // Mantido para compatibilidade
+    onStartTimer: (Long) -> Unit, // Não usado diretamente, a tela usa intents
+    onStopTimer: () -> Unit, // Não usado diretamente
+    onRefreshMedia: () -> Unit, // Não usado diretamente
     onForceStop: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Timer local separado
-    var localTimer by remember { mutableStateOf(0L) } // segundos
-    var isRunning by remember { mutableStateOf(false) }
-    var isPausedFromService by remember { mutableStateOf(false) }
     var serviceTimerSeconds by remember { mutableStateOf(0L) }
-    val notificationDataSource = get<NotificationDataSource>()
+    var isPausedFromService by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    // BroadcastReceiver para receber atualizações do serviço
+    val isTimerRunning = serviceTimerSeconds > 0
+
+    // Receiver para atualizações do serviço
     DisposableEffect(Unit) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == com.example.dormindo.DormindoTimerForegroundService.ACTION_TIMER_UPDATE) {
-                    val seconds = intent.getLongExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_TIMER_SECONDS, 0L)
-                    val isPaused = intent.getBooleanExtra("isPaused", false)
-                    // Atualiza o estado do timer do serviço
-                    serviceTimerSeconds = seconds
-                    isPausedFromService = isPaused
-                    // Log para debug
-                    android.util.Log.d("ForceStopScreen", "Recebido broadcast: $seconds segundos, pausado: $isPaused")
+                if (intent?.action == DormindoTimerForegroundService.ACTION_TIMER_UPDATE) {
+                    serviceTimerSeconds = intent.getLongExtra(DormindoTimerForegroundService.EXTRA_TIMER_SECONDS, 0L)
+                    isPausedFromService = intent.getBooleanExtra("isPaused", false)
                 }
             }
         }
-        context.registerReceiver(receiver, IntentFilter(com.example.dormindo.DormindoTimerForegroundService.ACTION_TIMER_UPDATE), Context.RECEIVER_NOT_EXPORTED)
+        context.registerReceiver(receiver, IntentFilter(DormindoTimerForegroundService.ACTION_TIMER_UPDATE), Context.RECEIVER_NOT_EXPORTED)
         onDispose {
             context.unregisterReceiver(receiver)
         }
     }
 
-    // Efeito para forçar recomposição quando o estado do serviço mudar
-    LaunchedEffect(serviceTimerSeconds, isPausedFromService) {
+    // Solicita uma atualização inicial para sincronizar o estado
+    LaunchedEffect(Unit) {
+        val intent = Intent(context, DormindoTimerForegroundService::class.java).apply {
+            action = DormindoTimerForegroundService.ACTION_REQUEST_UPDATE
+        }
+        context.startService(intent)
     }
 
-    // Efeito para atualizar o timer local
-    LaunchedEffect(isRunning) {
-        var wasRunning = false
-        while (isRunning && localTimer > 0) {
-            wasRunning = true
-            delay(1000)
-            localTimer--
+    // Função para iniciar o serviço com uma duração
+    val startServiceTimer: (Long) -> Unit = { durationInSeconds ->
+        val intent = Intent(context, DormindoTimerForegroundService::class.java).apply {
+            action = DormindoTimerForegroundService.ACTION_START
+            putExtra(DormindoTimerForegroundService.EXTRA_DURATION, durationInSeconds)
         }
-        if (wasRunning && localTimer == 0L) {
-            isRunning = false
-            onForceStop() // Só chama se estava rodando e chegou a zero
-        }
+        context.startForegroundService(intent)
     }
 
-    // Efeito colateral: ao finalizar o timer global, força parada de mídia
-    LaunchedEffect(uiState.timerStatus) {
-        if (uiState.timerStatus is TimerStatus.Completed) {
-            onForceStop()
-        }
-    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -92,258 +88,86 @@ fun ForceStopScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Timer Local (Forçar Parada)",
+            text = "Timer (Modo Simples)",
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
-        
-        // Mostra o timer do serviço se estiver ativo, senão mostra o timer local
-        if (serviceTimerSeconds > 0) {
+
+        // --- EXIBIÇÃO DO TIMER ---
+        Text(
+            text = String.format("%02d:%02d:%02d", serviceTimerSeconds / 3600, (serviceTimerSeconds % 3600) / 60, serviceTimerSeconds % 60),
+            style = MaterialTheme.typography.displayMedium,
+            color = if (isTimerRunning && isPausedFromService) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+        )
+        if (isTimerRunning) {
             Text(
-                text = String.format("%02d:%02d:%02d", serviceTimerSeconds / 3600, (serviceTimerSeconds % 3600) / 60, serviceTimerSeconds % 60),
-                style = MaterialTheme.typography.displayMedium,
-                color = if (isPausedFromService) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = if (isPausedFromService) "Timer PAUSADO" else "Timer ATIVO",
+                text = if (isPausedFromService) "PAUSADO" else "ATIVO",
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isPausedFromService) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
             )
-        } else {
-            Text(
-                text = String.format("%02d:%02d:%02d", localTimer / 3600, (localTimer % 3600) / 60, localTimer % 60),
-                style = MaterialTheme.typography.displayMedium
-            )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Controles do timer do serviço (quando ativo)
-        if (serviceTimerSeconds > 0) {
-            Text(
-                text = "Controles do Timer do Serviço",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- BOTÕES DE TEMPO PRÉ-DEFINIDOS ---
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = if (isPausedFromService) 
-                                com.example.dormindo.DormindoTimerForegroundService.ACTION_RESUME 
-                            else 
-                                com.example.dormindo.DormindoTimerForegroundService.ACTION_PAUSE
-                        }
-                        context.startService(intent)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(if (isPausedFromService) "Retomar" else "Pausar")
-                }
-                
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_CANCEL
-                        }
-                        context.startService(intent)
-                        // Também para o timer local
-                        isRunning = false
-                        localTimer = 0L
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Cancelar")
-                }
+                Button(onClick = { startServiceTimer(1 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("1m") }
+                Button(onClick = { startServiceTimer(5 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("5m") }
+                Button(onClick = { startServiceTimer(10 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("10m") }
             }
-            
             Spacer(modifier = Modifier.height(8.dp))
-            
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_ADD_MINUTE
-                        }
-                        context.startService(intent)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+1 min")
-                }
-                
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_ADD_5_MINUTES
-                        }
-                        context.startService(intent)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+5 min")
-                }
-                
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_ADD_10_MINUTES
-                        }
-                        context.startService(intent)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+10 min")
-                }
-                
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_ADD_15_MINUTES
-                        }
-                        context.startService(intent)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+15 min")
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        
-        // Botões de tempo organizados em duas linhas (só mostram quando não há timer do serviço ativo)
-        if (serviceTimerSeconds == 0L) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = {
-                        localTimer = 60 * 1 // 1 minuto
-                        isRunning = true
-                        // Inicia o serviço foreground
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 60L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("1 min")
-                    }
-                    Button(onClick = {
-                        localTimer = 60 * 2 // 2 minutos
-                        isRunning = true
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 120L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("2 min")
-                    }
-                    Button(onClick = {
-                        localTimer = 60 * 5 // 5 minutos
-                        isRunning = true
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 300L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("5 min")
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = {
-                        localTimer = 60 * 10 // 10 minutos
-                        isRunning = true
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 600L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("10 min")
-                    }
-                    Button(onClick = {
-                        localTimer = 60 * 15 // 15 minutos
-                        isRunning = true
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 900L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("15 min")
-                    }
-                    Button(onClick = {
-                        localTimer = 60 * 30 // 30 minutos
-                        isRunning = true
-                        val intent = Intent(context, com.example.dormindo.DormindoTimerForegroundService::class.java).apply {
-                            action = com.example.dormindo.DormindoTimerForegroundService.ACTION_START
-                            putExtra(com.example.dormindo.DormindoTimerForegroundService.EXTRA_DURATION, 1800L)
-                        }
-                        context.startForegroundService(intent)
-                    }, enabled = !isRunning) {
-                        Text("30 min")
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = { isRunning = false }, enabled = isRunning) {
-                        Text("Pausar")
-                    }
-                    Button(onClick = { isRunning = true }, enabled = !isRunning && localTimer > 0) {
-                        Text("Retomar")
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { localTimer += 60 }, enabled = isRunning) {
-                    Text("Adicionar 1 min")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { localTimer += 5 * 60 }, enabled = isRunning) {
-                    Text("Adicionar 5 min")
-                }
+                Button(onClick = { startServiceTimer(15 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("15m") }
+                Button(onClick = { startServiceTimer(30 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("30m") }
+                Button(onClick = { startServiceTimer(60 * 60) }, enabled = !isTimerRunning, modifier = Modifier.weight(1f)) { Text("60m") }
             }
         }
-        
-        // Removido TimerControls e espaçamento relacionado
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- CONTROLES DO TIMER (PAUSAR/RETOMAR/CANCELAR) ---
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Button(
+                onClick = {
+                    val action = if (isPausedFromService) DormindoTimerForegroundService.ACTION_RESUME else DormindoTimerForegroundService.ACTION_PAUSE
+                    context.startService(Intent(context, DormindoTimerForegroundService::class.java).setAction(action))
+                },
+                enabled = isTimerRunning,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (isPausedFromService) "Retomar" else "Pausar")
+            }
+            Button(
+                onClick = {
+                    context.startService(Intent(context, DormindoTimerForegroundService::class.java).setAction(DormindoTimerForegroundService.ACTION_CANCEL))
+                },
+                enabled = isTimerRunning,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancelar")
+            }
+        }
         Spacer(modifier = Modifier.height(40.dp))
-        
-        // Botão Force Stop (mantido para funcionalidade específica)
+
+        // --- BOTÃO DE FORÇAR PARADA ---
         Button(
-            onClick = {
-                onForceStop()
-            },
+            onClick = onForceStop,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
         ) {
             Text(
-                text = "Force Stop",
+                text = "Forçar Parada de Mídia",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSecondary
             )

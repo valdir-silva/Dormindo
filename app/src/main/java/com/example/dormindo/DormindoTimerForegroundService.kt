@@ -26,6 +26,7 @@ class DormindoTimerForegroundService : Service() {
         const val ACTION_ADD_5_MINUTES = "com.example.dormindo.action.ADD_5_MINUTES"
         const val ACTION_ADD_10_MINUTES = "com.example.dormindo.action.ADD_10_MINUTES"
         const val ACTION_ADD_15_MINUTES = "com.example.dormindo.action.ADD_15_MINUTES"
+        const val ACTION_REQUEST_UPDATE = "com.example.dormindo.action.REQUEST_UPDATE"
         const val EXTRA_DURATION = "extra_duration"
         const val EXTRA_REMAINING = "extra_remaining"
         const val TIMER_NOTIFICATION_ID = 1001 // Usar o mesmo ID do NotificationDataSource
@@ -60,6 +61,7 @@ class DormindoTimerForegroundService : Service() {
             ACTION_ADD_5_MINUTES -> addMinutes(5)
             ACTION_ADD_10_MINUTES -> addMinutes(10)
             ACTION_ADD_15_MINUTES -> addMinutes(15)
+            ACTION_REQUEST_UPDATE -> sendTimerUpdateBroadcast()
         }
         return START_STICKY
     }
@@ -156,4 +158,5 @@ class DormindoTimerForegroundService : Service() {
         serviceScope.cancel()
         super.onDestroy()
     }
-} 
+}
+ 
