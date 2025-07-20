@@ -106,6 +106,15 @@ O aplicativo agora utiliza **Jetpack Compose Navigation** para alternar entre di
 - [ ] Notificações e lembretes
 - [x] Navegação entre telas (Compose Navigation)
 - [x] Tela "Forçar Parada" para interromper todos os processos de mídia/timer
+- [x] Capturas de Tela Automatizadas (Screengrab)
+
+## Capturas de Tela Automatizadas
+
+O projeto utiliza a biblioteca [Screengrab](https://github.com/fastlane/fastlane-plugin-screengrab) para gerar automaticamente capturas de tela para a Google Play Store e outras plataformas. Isso garante que as imagens da loja estejam sempre atualizadas e consistentes.
+
+### Como funciona
+- Os testes de instrumentação são configurados para capturar telas em pontos específicos da UI.
+- As capturas são salvas em `app/fastlane/metadata/android/`.
 
 ## Timer em tempo real na notificação
 
@@ -182,6 +191,10 @@ chore: tarefas de manutenção
 ## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## Notas de Lançamento
+
+As notas de lançamento detalhadas para cada versão do aplicativo podem ser encontradas no arquivo [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 ## Contribuição
 
