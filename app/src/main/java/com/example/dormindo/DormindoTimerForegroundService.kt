@@ -69,15 +69,17 @@ class DormindoTimerForegroundService : Service() {
     private fun sendTimerUpdateBroadcast() {
         // Só envia broadcast se os valores mudaram para evitar spam
         if (lastBroadcastSeconds != remainingSeconds || lastBroadcastPaused != isPaused) {
-            val intent = Intent(ACTION_TIMER_UPDATE)
+            val intent = Intent(ACTION_TIMER_UPDATE).apply {
+                setPackage(packageName)
+            }
             intent.putExtra(EXTRA_TIMER_SECONDS, remainingSeconds)
             intent.putExtra("isPaused", isPaused)
             sendBroadcast(intent)
-            
+
             // Atualiza os valores do último broadcast
             lastBroadcastSeconds = remainingSeconds
             lastBroadcastPaused = isPaused
-            
+
             // Log para debug
             android.util.Log.d("TimerService", "Broadcast enviado: $remainingSeconds segundos, pausado: $isPaused")
         }

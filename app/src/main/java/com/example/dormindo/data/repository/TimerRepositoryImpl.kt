@@ -2,6 +2,7 @@ package com.example.dormindo.data.repository
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.ContextCompat
 import com.example.dormindo.DormindoTimerForegroundService
 import com.example.dormindo.data.datasource.NotificationDataSource
 import com.example.dormindo.data.datasource.WorkManagerDataSource
@@ -33,7 +34,7 @@ class TimerRepositoryImpl(
             this.action = action
             durationSeconds?.let { putExtra(DormindoTimerForegroundService.EXTRA_DURATION, it) }
         }
-        context.startForegroundService(intent)
+        ContextCompat.startForegroundService(context, intent)
     }
     private fun sendServiceAction(context: Context, action: String) {
         val intent = Intent(context, DormindoTimerForegroundService::class.java).apply {

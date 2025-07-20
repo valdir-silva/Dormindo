@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +42,7 @@ import com.example.dormindo.presentation.viewmodel.TimerViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
 /**
  * Tela principal do timer
@@ -65,7 +67,7 @@ fun TimerScreen(
                 }
             }
         }
-        context.registerReceiver(receiver, IntentFilter(DormindoTimerForegroundService.ACTION_TIMER_UPDATE), Context.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(context, receiver, IntentFilter(DormindoTimerForegroundService.ACTION_TIMER_UPDATE), ContextCompat.RECEIVER_NOT_EXPORTED)
         onDispose {
             context.unregisterReceiver(receiver)
         }
@@ -80,7 +82,7 @@ fun TimerScreen(
     ) {
         // Título
         Text(
-            text = "Dormindo",
+            text = stringResource(id = R.string.timer_screen_title),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -146,7 +148,7 @@ fun TimerScreen(
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
-            Text("Force Stop", color = MaterialTheme.colorScheme.onError)
+            Text(stringResource(id = R.string.force_stop_button), color = MaterialTheme.colorScheme.onError)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -154,16 +156,18 @@ fun TimerScreen(
         // Botão de teste para broadcast
         Button(
             onClick = {
-                val intent = Intent(DormindoTimerForegroundService.ACTION_TIMER_UPDATE)
+                val intent = Intent(DormindoTimerForegroundService.ACTION_TIMER_UPDATE).apply {
+                    setPackage(context.packageName)
+                }
                 intent.putExtra(DormindoTimerForegroundService.EXTRA_TIMER_SECONDS, 999L)
                 intent.putExtra("isPaused", true)
                 context.sendBroadcast(intent)
-                android.widget.Toast.makeText(context, "Broadcast de teste enviado!", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.test_broadcast_toast), android.widget.Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
         ) {
-            Text("Testar Broadcast", color = MaterialTheme.colorScheme.onTertiary)
+            Text(stringResource(id = R.string.test_broadcast_button), color = MaterialTheme.colorScheme.onTertiary)
         }
     }
 }
@@ -187,10 +191,10 @@ private fun MediaInfoCard(mediaInfo: com.example.dormindo.domain.repository.Medi
             ) {
                 Image(
                     painter = if (mediaInfo.isPlaying) painterResource(id = R.drawable.ic_play) else painterResource(id = R.drawable.ic_pause),
-                    contentDescription = if (mediaInfo.isPlaying) "Reproduzindo" else "Pausado"
+                    contentDescription = if (mediaInfo.isPlaying) stringResource(id = R.string.media_info_card_playing_description) else stringResource(id = R.string.media_info_card_paused_description)
                 )
                 Text(
-                    text = "Mídia Atual",
+                    text = stringResource(id = R.string.media_info_card_title),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -246,10 +250,10 @@ private fun TimerStatusCard(timerStatus: TimerStatus) {
                 }
                 Image(
                     painter = painterResource(id = iconRes),
-                    contentDescription = "Status do timer"
+                    contentDescription = stringResource(id = R.string.timer_status_card_description)
                 )
                 Text(
-                    text = "Status do Timer",
+                    text = stringResource(id = R.string.timer_status_card_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -259,11 +263,11 @@ private fun TimerStatusCard(timerStatus: TimerStatus) {
 
             Text(
                 text = when (timerStatus) {
-                    is TimerStatus.Idle -> "Pronto para iniciar"
-                    is TimerStatus.Running -> "Timer ativo - reprodução será parada"
-                    is TimerStatus.Paused -> "Timer pausado"
-                    is TimerStatus.Completed -> "Timer concluído - mídia parada"
-                    is TimerStatus.Error -> "Erro: ${timerStatus.message}"
+                    is TimerStatus.Idle -> stringResource(id = R.string.timer_status_idle)
+                    is TimerStatus.Running -> stringResource(id = R.string.timer_status_running)
+                    is TimerStatus.Paused -> stringResource(id = R.string.timer_status_paused_details)
+                    is TimerStatus.Completed -> stringResource(id = R.string.timer_status_completed)
+                    is TimerStatus.Error -> stringResource(id = R.string.timer_status_error, timerStatus.message)
                 },
                 fontSize = 16.sp,
                 color = when (timerStatus) {
@@ -291,7 +295,7 @@ fun TimerControls(
     ) {
         // Seletor de duração
         Text(
-            text = "Duração (minutos)",
+            text = stringResource(id = R.string.timer_duration_selector_title),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
@@ -305,7 +309,7 @@ fun TimerControls(
                 FilterChip(
                     selected = selectedDuration == duration,
                     onClick = { selectedDuration = duration },
-                    label = { Text("${duration}min") }
+                    label = { Text(stringResource(id = R.string.timer_duration_minutes, duration)) }
                 )
             }
         }
@@ -320,7 +324,7 @@ fun TimerControls(
                 onClick = { onStartTimer(selectedDuration) },
                 enabled = uiState.timerStatus !is TimerStatus.Running && !uiState.isLoading
             ) {
-                Text("Iniciar Timer")
+                Text(stringResource(id = R.string.timer_action_start))
             }
 
             Button(
@@ -330,7 +334,7 @@ fun TimerControls(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Parar Timer")
+                Text(stringResource(id = R.string.timer_action_stop))
             }
         }
 
@@ -344,7 +348,7 @@ fun TimerControls(
                 containerColor = MaterialTheme.colorScheme.tertiary
             )
         ) {
-            Text("Atualizar Mídia")
+            Text(stringResource(id = R.string.timer_action_refresh_media))
         }
     }
 }
