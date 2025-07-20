@@ -147,9 +147,12 @@ class MainActivity : ComponentActivity() {
                                 Tab(
                                     selected = selected,
                                     onClick = {
-                                        if (index == 1 && !hasNotificationListener) {
-                                            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                                            startActivity(intent)
+                                        if (index == 1) {
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                "Em desenvolvimento",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         } else {
                                             selectedTab = index
                                         }
