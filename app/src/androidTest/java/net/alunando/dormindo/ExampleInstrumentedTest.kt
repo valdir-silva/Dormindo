@@ -1,24 +1,24 @@
 package net.alunando.dormindo
 
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import tools.fastlane.screengrab.Screengrab
+import tools.fastlane.screengrab.locale.LocaleTestRule
 
-import org.junit.Assert.*
-
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class ScreenshotTest {
+
+    @get:Rule
+    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+
+    @get:Rule
+    val localeTestRule = LocaleTestRule()
+
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("net.alunando.dormindo", appContext.packageName)
+    fun testTakeScreenshot() {
+        Screengrab.screenshot("timer_screen")
     }
 }

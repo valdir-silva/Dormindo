@@ -17,6 +17,7 @@ coroutines = "1.8.0"
 mockk = "1.13.10"
 jacoco = "0.8.11"
 desugar = "2.0.4"
+screengrab = "2.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
+screengrab = { group = "tools.fastlane", name = "screengrab", version.ref = "screengrab" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
