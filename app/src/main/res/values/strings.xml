@@ -1,3 +1,84 @@
 <resources>
     <string name="app_name">Sleeping</string>
+
+    <!-- Geral -->
+    <string name="notification_permission_granted">Notification permission granted!</string>
+    <string name="notification_permission_denied">Notification permission denied.</string>
+    <string name="media_permission_check">Please check if you have granted media access permission.</string>
+    <string name="in_development">In development</string>
+    <string name="timer_default_value">00:00:00</string>
+
+    <!-- Abas da Tela Principal -->
+    <string name="main_tab_simple_mode">Simple Mode</string>
+    <string name="main_tab_advanced_mode">Advanced Mode</string>
+
+    <!-- Tela de Acesso à Notificação -->
+    <string name="notification_access_title">Permission Required</string>
+    <string name="notification_access_description">To access media information and control playback, please grant notification access to the Sleeping app in the system settings.</string>
+    <string name="notification_access_grant_button">Grant Access</string>
+    <string name="notification_access_check_again_button">I already granted it, try again</string>
+
+    <!-- Tela ForceStop (Modo Simples) -->
+    <string name="force_stop_screen_title">Timer (Simple Mode)</string>
+    <string name="timer_status_paused">PAUSED</string>
+    <string name="timer_status_active">ACTIVE</string>
+    <string name="timer_preset_1m">1m</string>
+    <string name="timer_preset_5m">5m</string>
+    <string name="timer_preset_10m">10m</string>
+    <string name="timer_preset_15m">15m</string>
+    <string name="timer_preset_30m">30m</string>
+    <string name="timer_preset_60m">60m</string>
+    <string name="timer_action_resume">Resume</string>
+    <string name="timer_action_pause">Pause</string>
+    <string name="timer_action_cancel">Cancel</string>
+    <string name="force_stop_media_button">Force Stop Media</string>
+
+    <!-- Tela do Timer (Modo Avançado) -->
+    <string name="timer_screen_title">Dormindo</string>
+    <string name="force_stop_button">Force Stop</string>
+    <string name="test_broadcast_button">Test Broadcast</string>
+    <string name="test_broadcast_toast">Test broadcast sent!</string>
+
+    <!-- Card de Informações da Mídia -->
+    <string name="media_info_card_playing_description">Playing</string>
+    <string name="media_info_card_paused_description">Paused</string>
+    <string name="media_info_card_title">Current Media</string>
+
+    <!-- Card de Status do Timer -->
+    <string name="timer_status_card_title">Timer Status</string>
+    <string name="timer_status_card_description">Timer status</string>
+    <string name="timer_status_idle">Ready to start</string>
+    <string name="timer_status_running">Timer active - playback will be stopped</string>
+    <string name="timer_status_paused_details">Timer paused</string>
+    <string name="timer_status_completed">Timer completed - media stopped</string>
+    <string name="timer_status_error">Error: %s</string>
+
+    <!-- Controles do Timer -->
+    <string name="timer_duration_selector_title">Duration (minutes)</string>
+    <string name="timer_duration_minutes">%dmin</string>
+    <string name="timer_action_start">Start Timer</string>
+    <string name="timer_action_stop">Stop Timer</string>
+    <string name="timer_action_refresh_media">Refresh Media</string>
+
+    <!-- Erros -->
+    <string name="error_no_media_playing">No media is playing. Open a music app and try again.</string>
+    <string name="error_start_timer">Error starting timer</string>
+    <string name="error_stop_timer">Error stopping timer</string>
+    <string name="error_no_media_detected">No media detected. Make sure a music app is playing and permission has been granted.</string>
+
+    <!-- Strings Adicionais -->
+    <string name="error_no_media_playing_short">No media is playing</string>
+    <string name="notification_channel_timer_name">Dormindo Timer</string>
+    <string name="notification_channel_timer_description">Timer notifications to stop media playback</string>
+    <string name="notification_timer_active_title">Timer Active</string>
+    <string name="notification_timer_active_text">Remaining: %s</string>
+    <string name="notification_button_resume">Resume</string>
+    <string name="notification_button_pause">Pause</string>
+    <string name="notification_button_cancel">Cancel</string>
+    <string name="notification_button_add_15_min">+15 min</string>
+    <string name="notification_timer_completed_title">Timer Completed</string>
+    <string name="notification_timer_completed_text">Media playback was stopped</string>
+    <string name="media_package_name_unknown">unknown</string>
+    <string name="media_app_name_unknown">Unknown App</string>
+    <string name="toast_add_1_min_success">+1 min added to timer</string>
 </resources>

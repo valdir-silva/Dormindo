@@ -135,7 +135,7 @@ Os testes usam nomenclatura descritiva em português:
 
 ### Executar testes específicos
 ```bash
-./gradlew test --testscom.example.dormindo.domain.usecase.StartTimerUseCaseTest"
+./gradlew test --testsnet.alunando.dormindo.domain.usecase.StartTimerUseCaseTest"
 ```
 
 ### Executar testes com relatório

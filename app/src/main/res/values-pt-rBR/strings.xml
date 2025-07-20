@@ -1,3 +1,55 @@
 <resources>
     <string name="app_name">Dormindo</string>
+    <string name="force_stop_screen_title">Timer (Modo Simples)</string>
+    <string name="timer_status_paused">PAUSADO</string>
+    <string name="timer_status_active">ATIVO</string>
+    <string name="timer_preset_1m">1m</string>
+    <string name="timer_preset_5m">5m</string>
+    <string name="timer_preset_10m">10m</string>
+    <string name="timer_preset_15m">15m</string>
+    <string name="timer_preset_30m">30m</string>
+    <string name="timer_preset_60m">60m</string>
+    <string name="timer_action_resume">Retomar</string>
+    <string name="timer_action_pause">Pausar</string>
+    <string name="timer_action_cancel">Cancelar</string>
+    <string name="force_stop_media_button">Forçar Parada de Mídia</string>
+    <string name="timer_screen_title">Dormindo</string>
+    <string name="force_stop_button">Force Stop</string>
+    <string name="test_broadcast_button">Testar Broadcast</string>
+    <string name="test_broadcast_toast">Broadcast de teste enviado!</string>
+    <string name="media_info_card_playing_description">Reproduzindo</string>
+    <string name="media_info_card_paused_description">Pausado</string>
+    <string name="media_info_card_title">Mídia Atual</string>
+    <string name="timer_status_card_title">Status do Timer</string>
+    <string name="timer_status_card_description">Status do timer</string>
+    <string name="timer_status_idle">Pronto para iniciar</string>
+    <string name="timer_status_running">Timer ativo - reprodução será parada</string>
+    <string name="timer_status_paused_details">Timer pausado</string>
+    <string name="timer_status_completed">Timer concluído - mídia parada</string>
+    <string name="timer_status_error">Erro: %s</string>
+    <string name="timer_duration_selector_title">Duração (minutos)</string>
+    <string name="timer_duration_minutes">%dmin</string>
+    <string name="timer_action_start">Iniciar Timer</string>
+    <string name="timer_action_stop">Parar Timer</string>
+    <string name="timer_action_refresh_media">Atualizar Mídia</string>
+    <string name="error_no_media_playing">Nenhuma mídia está sendo reproduzida. Abra um app de música e tente novamente.</string>
+    <string name="error_start_timer">Erro ao iniciar timer</string>
+    <string name="error_stop_timer">Erro ao parar timer</string>
+    <string name="error_no_media_detected">Nenhuma mídia detectada. Certifique-se de que um app de música está tocando e que a permissão foi concedida.</string>
+
+    <!-- Strings Adicionais -->
+    <string name="error_no_media_playing_short">Nenhuma mídia está sendo reproduzida</string>
+    <string name="notification_channel_timer_name">Timer do Dormindo</string>
+    <string name="notification_channel_timer_description">Notificações do timer para parar reprodução de mídia</string>
+    <string name="notification_timer_active_title">Timer Ativo</string>
+    <string name="notification_timer_active_text">Restam: %s</string>
+    <string name="notification_button_resume">Retomar</string>
+    <string name="notification_button_pause">Pausar</string>
+    <string name="notification_button_cancel">Cancelar</string>
+    <string name="notification_button_add_15_min">+15 min</string>
+    <string name="notification_timer_completed_title">Timer Concluído</string>
+    <string name="notification_timer_completed_text">Reprodução de mídia foi parada</string>
+    <string name="media_package_name_unknown">desconhecido</string>
+    <string name="media_app_name_unknown">Aplicativo Desconhecido</string>
+    <string name="toast_add_1_min_success">+1 min adicionado ao timer</string>
 </resources>

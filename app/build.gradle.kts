@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dormindo"
+    namespace = "net.alunando.dormindo"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.dormindo"
+        applicationId = "net.alunando.dormindo"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -31,6 +31,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -81,6 +82,7 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
     testImplementation(libs.mockk)
     implementation("androidx.compose.material:material-icons-extended")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
 // Configuração do JaCoCo para cobertura de testes unitários
