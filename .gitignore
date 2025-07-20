@@ -104,3 +104,6 @@ Desktop.ini
 # CursorRIPER Framework files
 .cursor/
 memory-bank/
+
+# Fastlane directory
+app/fastlane/
