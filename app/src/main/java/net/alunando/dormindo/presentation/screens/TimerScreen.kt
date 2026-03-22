@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.alunando.dormindo.R
 import net.alunando.dormindo.DormindoTimerForegroundService
 import net.alunando.dormindo.domain.entity.TimerStatus
@@ -73,9 +75,11 @@ fun TimerScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -83,7 +87,7 @@ fun TimerScreen(
         // Título
         Text(
             text = stringResource(id = R.string.timer_screen_title),
-            fontSize = 32.sp,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
@@ -104,7 +108,7 @@ fun TimerScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = formatSeconds(uiState.remainingSeconds),
-                fontSize = 32.sp,
+                style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -136,8 +140,8 @@ fun TimerScreen(
         uiState.error?.let { error ->
             Text(
                 text = error,
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
             )
         }
 
@@ -176,6 +180,7 @@ fun TimerScreen(
 private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.MediaInfo) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -195,7 +200,7 @@ private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.Med
                 )
                 Text(
                     text = stringResource(id = R.string.media_info_card_title),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -204,7 +209,7 @@ private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.Med
 
             Text(
                 text = mediaInfo.appName,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -212,7 +217,7 @@ private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.Med
             mediaInfo.title?.let { title ->
                 Text(
                     text = title,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -220,7 +225,7 @@ private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.Med
             mediaInfo.artist?.let { artist ->
                 Text(
                     text = artist,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -232,7 +237,8 @@ private fun MediaInfoCard(mediaInfo: net.alunando.dormindo.domain.repository.Med
 private fun TimerStatusCard(timerStatus: TimerStatus) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -254,7 +260,7 @@ private fun TimerStatusCard(timerStatus: TimerStatus) {
                 )
                 Text(
                     text = stringResource(id = R.string.timer_status_card_title),
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -269,7 +275,7 @@ private fun TimerStatusCard(timerStatus: TimerStatus) {
                     is TimerStatus.Completed -> stringResource(id = R.string.timer_status_completed)
                     is TimerStatus.Error -> stringResource(id = R.string.timer_status_error, timerStatus.message)
                 },
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 color = when (timerStatus) {
                     is TimerStatus.Running -> MaterialTheme.colorScheme.primary
                     is TimerStatus.Completed -> MaterialTheme.colorScheme.secondary
@@ -296,7 +302,7 @@ fun TimerControls(
         // Seletor de duração
         Text(
             text = stringResource(id = R.string.timer_duration_selector_title),
-            fontSize = 16.sp,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
 
